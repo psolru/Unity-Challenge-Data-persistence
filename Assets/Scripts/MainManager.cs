@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class MainManager : MonoBehaviour
 {
@@ -18,7 +20,6 @@ public class MainManager : MonoBehaviour
     private int m_Points;
     
     private bool m_GameOver = false;
-
     
     // Start is called before the first frame update
     void Start()
@@ -41,6 +42,8 @@ public class MainManager : MonoBehaviour
 
     private void Update()
     {
+        SetHighScoreText();
+
         if (!m_Started)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -63,15 +66,35 @@ public class MainManager : MonoBehaviour
         }
     }
 
+    void SetHighScoreText()
+    {
+        if (DataManager.Instance.GetHighscore() > 0)
+        {
+            highscoreText.text =
+                string.Format("Highscore: {0} with {1} points",
+                    DataManager.Instance.GetHighscorePlayerName(),
+                    DataManager.Instance.GetHighscore()
+                );
+        }
+        else
+        {
+            highscoreText.text = "";
+        }
+    }
+
     void AddPoint(int point)
     {
         m_Points += point;
-        ScoreText.text = string.Concat("Score : ", m_Points);
+        ScoreText.text = string.Format("Score {0}: {1}", DataManager.Instance.playerName, m_Points);
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        if (DataManager.Instance.GetHighscore() < m_Points)
+        {
+            DataManager.Instance.SaveHighscore(m_Points);            
+        }
     }
 }
